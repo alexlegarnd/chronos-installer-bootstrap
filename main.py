@@ -21,14 +21,11 @@ FILES = ["libeay32.dll", "ssleay32.dll", "7z.dll", EXECUTABLE]
 
 
 def get_installed_version():
-    print('[bold green]INFO[/] Checking installed version')
     if os.path.exists(INSTALLED_VERSION_PATH):
         file = open(INSTALLED_VERSION_PATH, "r")
         version = file.read()
         file.close()
-        print('[bold green]INFO[/] {} found'.format(version))
         return version
-    print('[bold green]INFO[/] no version installed')
     return "0.0.0"
 
 
@@ -40,13 +37,13 @@ def is_admin():
 
 
 def get_version_from_repo():
-    print('[bold green]INFO[/] Getting version on repo')
     url = "{}{}".format(REPO_URL, VERSION_FILE)
     r = requests.get(url, allow_redirects=True)
     return r.text
 
 
 def download_file_from_repo(filename):
+    print('[bold green]INFO[/] Downloading latest version of the software installer')
     url = "{}{}".format(REPO_URL, filename)
     with open("{}\\{}".format(INSTALL_FOLDER, filename), 'wb') as f:
         response = requests.get(url, stream=True)
@@ -56,7 +53,7 @@ def download_file_from_repo(filename):
             f.write(response.content)
         else:
             with Progress() as progress:
-                task = progress.add_task("Fetching {}".format(filename), total=int(total_length))
+                task = progress.add_task("Downloading {}".format(filename), total=int(total_length))
                 for data in response.iter_content(chunk_size=4096):
                     f.write(data)
                     progress.update(task, advance=len(data))
@@ -66,10 +63,8 @@ def create_install_folder():
     company_directory = "{}\\{}".format(os.getenv('APPDATA'), COMPANY_NAME)
     if not os.path.exists(company_directory):
         os.mkdir(company_directory)
-        print('[bold green]INFO[/] Creating {} folder'.format(company_directory))
     if not os.path.exists(INSTALL_FOLDER):
         os.mkdir(INSTALL_FOLDER)
-        print('[bold green]INFO[/] Creating {} folder'.format(INSTALL_FOLDER))
 
 
 def clean_folder(path):
@@ -99,7 +94,10 @@ def clean():
 def main():
     if not is_admin():
         print('[bold red]ERROR[/] This app need to be launched eleveted')
+        input('-- Press enter key to quit --')
         sys.exit(0)
+    print('-- Chronos installer bootstrap / @alexlegarnd -- https://alexisdelhaie.ovh/')
+    print('Github: https://github.com/alexlegarnd/chronos-installer-bootstrap')
     version = get_version_from_repo()
     create_install_folder()
     clean()
@@ -113,7 +111,6 @@ def main():
         file.write(version)
         file.close()
     if os.path.exists(EXECUTABLE_PATH):
-        print('[bold green]INFO[/] Starting installer')
         subprocess.Popen([EXECUTABLE_PATH], cwd=INSTALL_FOLDER)
     else:
         print('[bold red]ERROR[/] Executable not found')
