@@ -43,7 +43,6 @@ def get_version_from_repo():
 
 
 def download_file_from_repo(filename):
-    print('[bold green]INFO[/] Downloading latest version of the software installer')
     url = "{}{}".format(REPO_URL, filename)
     with open("{}\\{}".format(INSTALL_FOLDER, filename), 'wb') as f:
         response = requests.get(url, stream=True)
@@ -96,12 +95,13 @@ def main():
         print('[bold red]ERROR[/] This app need to be launched eleveted')
         input('-- Press enter key to quit --')
         sys.exit(0)
-    print('-- Chronos installer bootstrap / @alexlegarnd -- https://alexisdelhaie.ovh/')
-    print('Github: https://github.com/alexlegarnd/chronos-installer-bootstrap')
+    print('Chronos installer bootstrap\n\n@alexlegarnd -- https://alexisdelhaie.ovh/')
+    print('Github: https://github.com/alexlegarnd/chronos-installer-bootstrap\n')
     version = get_version_from_repo()
     create_install_folder()
     clean()
     if get_installed_version() != version:
+        print('[bold green]INFO[/] Downloading latest version of the software installer')
         clean_folder(INSTALL_FOLDER)
         for file in FILES:
             download_file_from_repo(file)
