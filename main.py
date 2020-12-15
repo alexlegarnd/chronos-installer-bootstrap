@@ -8,6 +8,7 @@ import requests
 import wx
 from wx import Size, Point
 
+## Installer configuration
 REPO_URL = "https://alexisdelhaie.ovh/dlcenter/chronos-repo/installer/"
 VERSION_FILE = "version"
 COMPANY_NAME = "alexlegarnd"
@@ -19,6 +20,7 @@ INSTALLED_VERSION_PATH = "{}\\{}".format(INSTALL_FOLDER, VERSION_FILE)
 EXECUTABLE = "Install.exe"
 EXECUTABLE_PATH = "{}\\{}".format(INSTALL_FOLDER, EXECUTABLE)
 FILES = ["libeay32.dll", "ssleay32.dll", "7z.dll", EXECUTABLE]
+WINDOW_TITLE = "Chronos Installer"
 
 
 def create_install_folder():
@@ -68,12 +70,12 @@ def is_admin():
 class MyApplication(wx.App):
 
     def OnInit(self):
-        self.SetAppName("EndPoint installer")
+        self.SetAppName(WINDOW_TITLE)
         if is_admin():
             self.main()
         else:
             dlg = wx.MessageDialog(None, "This application requires administrative privileges to run",
-                                   "EndPoint installer", style=wx.OK | wx.ICON_HAND)
+                                   WINDOW_TITLE, style=wx.OK | wx.ICON_HAND)
             dlg.ShowModal()
             dlg.Destroy()
         return True
@@ -83,7 +85,7 @@ class MyApplication(wx.App):
         create_install_folder()
         self.clean()
         if get_installed_version() != version:
-            dlg = MyDialog(None, -1, "EndPoint installer", Size(400, 120))
+            dlg = MyDialog(None, -1, WINDOW_TITLE, Size(400, 120))
             dlg.Show()
             self.clean_folder(INSTALL_FOLDER)
             for file in FILES:
@@ -98,7 +100,7 @@ class MyApplication(wx.App):
             subprocess.Popen([EXECUTABLE_PATH], cwd=INSTALL_FOLDER)
         else:
             dlg = wx.MessageDialog(None, "Installer executable not found",
-                                   "EndPoint installer", style=wx.OK | wx.ICON_HAND)
+                                   WINDOW_TITLE, style=wx.OK | wx.ICON_HAND)
             dlg.ShowModal()
             dlg.Destroy()
 
@@ -114,7 +116,7 @@ class MyApplication(wx.App):
                             shutil.rmtree(file_path)
                     except Exception as e:
                         dlg = wx.MessageDialog(self, 'Failed to delete {}. Reason: {}'.format(file_path, e),
-                                               "EndPoint installer", style=wx.OK | wx.ICON_HAND)
+                                               WINDOW_TITLE, style=wx.OK | wx.ICON_HAND)
                         dlg.ShowModal()
                         dlg.Destroy()
 
@@ -132,7 +134,7 @@ class MyDialog(wx.Dialog):
 
     def __init__(self, parent, i, title, size=wx.DefaultSize):
         wx.Dialog.__init__(self)
-        self.Create(parent, i, title, wx.DefaultPosition, size, wx.DEFAULT_DIALOG_STYLE, 'EndPoint installer')
+        self.Create(parent, i, title, wx.DefaultPosition, size, wx.DEFAULT_DIALOG_STYLE, WINDOW_TITLE)
         self.Centre()
         self.panel = wx.Panel(self)
         self.status = wx.StaticText(self.panel, label="-------------------------------------------", pos=Point(17, 10))
