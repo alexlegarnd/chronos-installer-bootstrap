@@ -6,6 +6,7 @@ import sys
 from threading import Thread
 
 import requests
+from requests.exceptions import ConnectionError
 import wx
 from wx import Size, Point
 
@@ -64,16 +65,22 @@ class MyApplication(wx.App):
     def OnInit(self):
         self.SetAppName(WINDOW_TITLE)
         if is_admin():
-            version = get_version_from_repo()
-            create_install_folder()
-            if get_installed_version() != version:
-                dlg = MyDialog(None, -1, WINDOW_TITLE, version, Size(400, 120))
-                dlg.ShowModal()
-                dlg.Destroy()
-            if os.path.exists(EXECUTABLE_PATH):
-                subprocess.Popen([EXECUTABLE_PATH], cwd=INSTALL_FOLDER)
-            else:
-                dlg = wx.MessageDialog(None, "Installer executable not found",
+            try:
+                version = get_version_from_repo()
+                create_install_folder()
+                if get_installed_version() != version:
+                    dlg = MyDialog(None, -1, WINDOW_TITLE, version, Size(400, 120))
+                    dlg.ShowModal()
+                    dlg.Destroy()
+                if os.path.exists(EXECUTABLE_PATH):
+                    subprocess.Popen([EXECUTABLE_PATH], cwd=INSTALL_FOLDER)
+                else:
+                    dlg = wx.MessageDialog(None, "Installer executable not found",
+                                           WINDOW_TITLE, style=wx.OK | wx.ICON_HAND)
+                    dlg.ShowModal()
+                    dlg.Destroy()
+            except Exception as e:
+                dlg = wx.MessageDialog(None, str(e),
                                        WINDOW_TITLE, style=wx.OK | wx.ICON_HAND)
                 dlg.ShowModal()
                 dlg.Destroy()
@@ -187,6 +194,11 @@ class WorkerThread(Thread):
             file = open(INSTALLED_VERSION_PATH, "w")
             file.write(self.version)
             file.close()
+        except Exception as e:
+            dlg = wx.MessageDialog(None, str(e),
+                                   WINDOW_TITLE, style=wx.OK | wx.ICON_HAND)
+            dlg.ShowModal()
+            dlg.Destroy()
         finally:
             wx.PostEvent(self.dlg, ProcessTerminated())
 
